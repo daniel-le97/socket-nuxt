@@ -2,9 +2,7 @@ import "#internal/nitro/virtual/polyfills";
 // @ts-ignore
 import { isPublicAssetURL } from "#internal/nitro/virtual/public-assets";
 
-
 const nitroApp = useNitroApp();
-
 
 // const server = http.createServer(onRequest)
 
@@ -13,37 +11,42 @@ function fixAssetsUrl(inputString: string) {
   return inputString.substring(nuxtIndex);
 }
 
-// const handler = toWebHandler(nitroApp.h3App);
+const handler = toWebHandler(nitroApp.h3App);
 
 export default async (request: Request, env = {}, ctx: any) => {
-  let url = new URL(request.url);
+  try {
+    let url = new URL(request.url);
+    console.log({ url, env, ctx });
 
-  if (isPublicAssetURL(url.pathname) || url.pathname.includes("/server/")) {
-    return;
+    if (isPublicAssetURL(url.pathname) || url.pathname.includes("/server/")) {
+      return;
+    }
+
+    let res;
+
+    // idk why but nuxt will not serve its own build assets correctly so we need to fetch them
+    if (url.pathname.includes("/_nuxt/")) {
+      res = await fetch(fixAssetsUrl(url.pathname));
+    }
+
+    if (!res) {
+      res = await handler(request);
+      // if u want to make the handler manually
+      // res = await handleEvent(url, request);
+    }
+
+    const cloned = res?.clone();
+    if (cloned) {
+      console.log({
+        contentType: cloned.headers.get("content-type"),
+        url: url.pathname,
+      });
+    }
+
+    return res;
+  } catch (error) {
+    console.log(error);
   }
-
-  let res;
-
-  // idk why but nuxt will not serve its own build assets correctly so we need to fetch them
-  if (url.pathname.includes("/_nuxt/")) {
-    res = await fetch(fixAssetsUrl(url.pathname));
-  }
-
-  if (!res) {
-    // res = await handler(request);
-    // if u want to make the handler manually
-    res = await handleEvent(url, request);
-  }
-
-  const cloned = res?.clone();
-  if (cloned) {
-    console.log({
-      contentType: cloned.headers.get("content-type"),
-      url: url.pathname,
-    });
-  }
-
-  return res;
 };
 
 async function handleEvent(url: URL, request: Request) {

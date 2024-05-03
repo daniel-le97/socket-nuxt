@@ -32,60 +32,61 @@ function fixGlobals(): Plugin {
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: true },
-  ssr: false,
+  // ssr: false,
 
-  vite: {
-    build: {
-      reportCompressedSize: false,
-      rollupOptions: {
-        external: [/^socket:.*/],
-      },
-    },
-  },
+  // vite: {
+  //   build: {
+  //     reportCompressedSize: false,
+  //     rollupOptions: {
+  //       external: [/^socket:.*/],
+  //     },
+  //   },
+  // },
+  //setting this in a module does not work
   app: {
     baseURL: "/nitro/",
   },
-  nitro: {
-    preset: 'service-worker',
-    output: {
-      serverDir: "{{ output.dir }}/public/server",
-    },
-    entry: process.cwd() + "/entry.ts",
-    commands:{
-      'preview':'ssc build -r',
-    },
-    hooks: {
-      "rollup:before": (nitro, config) => {
-        const plugins = config.plugins as Plugin[];
-        const found = plugins.findIndex((p) => p.name === "import-meta") + 1;
-        plugins.splice(found, 0, fixGlobals());
-        config.plugins = plugins;
-      },
-      async compiled(nitro) {
-        const indexHtml = resolve(nitro.options.output.publicDir, "index.html");
-        const html = await fsp.readFile("./index.html", "utf8");
-        if (!existsSync(indexHtml)) {
-          // write the index.html file from the entry.html template
-          await fsp.writeFile(indexHtml, html, "utf8");
-          // await fsp.writeFile(
-          //   resolve(nitro.options.output.publicDir, "worker.js"),
-          //   await fsp.readFile("./worker.js"),
-          //   "utf8"
-          // );
-        }
-      },
-    },
-    minify: false,
-    noExternals: true,
-    node: false,
-    inlineDynamicImports: true,
-    rollupConfig: {
-      'cache':true,
-      external: [/^socket:.*/],
-      output:{
-        'format': 'esm'
-      }
-      // 'perf':true
-    },
-  },
+  // nitro: {
+  //   preset: 'service-worker',
+  //   output: {
+  //     serverDir: "{{ output.dir }}/public/server",
+  //   },
+  //   entry: process.cwd() + "/entry.ts",
+  //   commands:{
+  //     'preview':'ssc build -r',
+  //   },
+  //   hooks: {
+  //     "rollup:before": (nitro, config) => {
+  //       const plugins = config.plugins as Plugin[];
+  //       const found = plugins.findIndex((p) => p.name === "import-meta") + 1;
+  //       plugins.splice(found, 0, fixGlobals());
+  //       config.plugins = plugins;
+  //     },
+  //     async compiled(nitro) {
+  //       const indexHtml = resolve(nitro.options.output.publicDir, "index.html");
+  //       const html = await fsp.readFile("./index.html", "utf8");
+  //       if (!existsSync(indexHtml)) {
+  //         // write the index.html file from the entry.html template
+  //         await fsp.writeFile(indexHtml, html, "utf8");
+  //         // await fsp.writeFile(
+  //         //   resolve(nitro.options.output.publicDir, "worker.js"),
+  //         //   await fsp.readFile("./worker.js"),
+  //         //   "utf8"
+  //         // );
+  //       }
+  //     },
+  //   },
+  //   minify: false,
+  //   noExternals: true,
+  //   node: false,
+  //   inlineDynamicImports: true,
+  //   rollupConfig: {
+  //     'cache':true,
+  //     external: [/^socket:.*/],
+  //     output:{
+  //       'format': 'esm'
+  //     }
+  //     // 'perf':true
+  //   },
+  // },
 });

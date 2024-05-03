@@ -42,14 +42,11 @@ export default defineNuxtModule({
   },
   setup: async (nuxtOptions, nuxt) => {
     console.log("socket-runtime setup");
-    nuxt.hook('listen',(server) => {
-      console.log('running');
-    })
-  
-    return
+
     const { resolve } = createResolver(import.meta.url);
     nuxt.options.ssr = false;
     nuxt.options.app.baseURL = "/nitro/";
+    nuxt.options.app.cdnURL = "/nitro/";
     nuxt.options.vite.build = defu(nuxt.options.vite.build, {
       reportCompressedSize: false,
       rollupOptions: {
@@ -62,7 +59,7 @@ export default defineNuxtModule({
         serverDir: "{{ output.dir }}/public/server",
       },
     });
-
+    nuxt.options.nitro.baseURL = "/nitro/";
     nuxt.options.nitro.noExternals = true;
     nuxt.options.nitro.node = false;
     nuxt.options.nitro.inlineDynamicImports = true;
@@ -72,6 +69,10 @@ export default defineNuxtModule({
     nuxt.options.nitro.plugins = [
       resolve("./runtime/server/plugins/preload.ts"),
     ];
+    nuxt.options.nitro.commands = {
+      'preview': 'ssc build -r',
+      "deploy": 'ssc build --prod'
+    }
     nuxt.options.nitro.hooks = {
       "rollup:before": (nitro, config) => {
         const plugins = config.plugins as Plugin[];
@@ -99,8 +100,6 @@ export default defineNuxtModule({
     //   nuxt.options.vite.build.rollupOptions.external
     // );
 
-    const dir = process.cwd() + "/modules/runtime/preset";
-
-    // nuxt.options.nitro.preset = dir
+    console.log("socket runtime setup done");
   },
 });
