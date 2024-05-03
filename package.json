@@ -1,0 +1,27 @@
+{
+  "name": "nuxt-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "start": "ssc build -r",
+    "debug": "SOCKET_RUNTIME_SERVICE_WORKER_DEBUG=1 ssc build -r -w"
+  },
+  "dependencies": {
+    "@socketsupply/socket": "^0.5.4",
+    "nuxt": "^3.11.2",
+    "path": "^0.12.7",
+    "pathe": "^1.1.2",
+    "rollup": "^4.17.2",
+    "ufo": "^1.5.3",
+    "vue": "^3.4.26",
+    "vue-router": "^4.3.2"
+  },
+  "devDependencies": {
+    "@nuxt/devtools": "^1.2.0"
+  }
+}

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+  </head>
+  <body>
+    <div id="app">
+      <p>initializing service worker...</p>
+      <button id="button1">fetch</button>
+      <input type="text" id="input1" />
+      <textarea id="text1" cols="30" rows="10"></textarea>
+    </div>
+    <script type="module">
+      function selector(id) {
+        return document.getElementById(id);
+      }
+      const button = selector("button1");
+      const input = selector("input1");
+      const text = selector("text1");
+      button.addEventListener("click", async (e) => {
+        e.preventDefault();
+        try {
+          const inputValue = input.value || "/nitro/hello";
+          console.log("inputValue", inputValue);
+          const fetched = await fetch(input.value);
+          const textContent = await fetched.text();
+          text.textContent = textContent;
+        } catch (error) {
+          text.textContent = "error";
+          console.error(error);
+        }
+      });
+    </script>
+  </body>
+</html>
