@@ -1,7 +1,7 @@
 {
   "extends": "../.nuxt/tsconfig.server.json",
   "compilerOptions": {
-    "types": ["@socketsupply/socket"]
+    "types": ["../socket/index.d.ts"]
   },
-  "exclude": ["build", "dist"]
+  "exclude": ["../build", "../dist", "../socket"]
 }

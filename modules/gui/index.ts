@@ -41,8 +41,12 @@ export default defineNuxtModule({
     name: "socket-runtime",
   },
   setup: async (nuxtOptions, nuxt) => {
-    return
     console.log("socket-runtime setup");
+    nuxt.hook('listen',(server) => {
+      console.log('running');
+    })
+  
+    return
     const { resolve } = createResolver(import.meta.url);
     nuxt.options.ssr = false;
     nuxt.options.app.baseURL = "/nitro/";

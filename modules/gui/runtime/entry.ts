@@ -1,48 +1,49 @@
-
 import "#internal/nitro/virtual/polyfills";
 // @ts-ignore
 import { isPublicAssetURL } from "#internal/nitro/virtual/public-assets";
 
+
 const nitroApp = useNitroApp();
+
+
+// const server = http.createServer(onRequest)
 
 function fixAssetsUrl(inputString: string) {
   const nuxtIndex = inputString.indexOf("/_nuxt/");
   return inputString.substring(nuxtIndex);
 }
 
-const handler = toWebHandler(nitroApp.h3App);
+// const handler = toWebHandler(nitroApp.h3App);
 
-export default {
-  async fetch(request: Request, env = {}, ctx: any) {
-    let url = new URL(request.url);
-    
-    if (isPublicAssetURL(url.pathname) || url.pathname.includes("/server/")) {
-      return;
-    }
+export default async (request: Request, env = {}, ctx: any) => {
+  let url = new URL(request.url);
 
-    let res;
+  if (isPublicAssetURL(url.pathname) || url.pathname.includes("/server/")) {
+    return;
+  }
 
-    // idk why but nuxt will not serve its own build assets correctly so we need to fetch them
-    if (url.pathname.includes("/_nuxt/")) {
-      res = await fetch(fixAssetsUrl(url.pathname));
-    }
+  let res;
 
-    if (!res) {
-      res = await handler(request);
-      // if u want to make the handler manually
-      // res = await handleEvent(url, request);
-    }
+  // idk why but nuxt will not serve its own build assets correctly so we need to fetch them
+  if (url.pathname.includes("/_nuxt/")) {
+    res = await fetch(fixAssetsUrl(url.pathname));
+  }
 
-    const cloned = res?.clone();
-    if (cloned) {
-      console.log({
-        contentType: cloned.headers.get("content-type"),
-        url: url.pathname,
-      });
-    }
+  if (!res) {
+    // res = await handler(request);
+    // if u want to make the handler manually
+    res = await handleEvent(url, request);
+  }
 
-    return res;
-  },
+  const cloned = res?.clone();
+  if (cloned) {
+    console.log({
+      contentType: cloned.headers.get("content-type"),
+      url: url.pathname,
+    });
+  }
+
+  return res;
 };
 
 async function handleEvent(url: URL, request: Request) {

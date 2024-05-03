@@ -43,13 +43,17 @@ export default defineNuxtConfig({
     },
   },
   app: {
-    baseURL: "/nitro",
+    baseURL: "/nitro/",
   },
   nitro: {
+    preset: 'service-worker',
     output: {
       serverDir: "{{ output.dir }}/public/server",
     },
     entry: process.cwd() + "/entry.ts",
+    commands:{
+      'preview':'ssc build -r',
+    },
     hooks: {
       "rollup:before": (nitro, config) => {
         const plugins = config.plugins as Plugin[];
@@ -71,12 +75,16 @@ export default defineNuxtConfig({
         }
       },
     },
-
+    minify: false,
     noExternals: true,
     node: false,
     inlineDynamicImports: true,
     rollupConfig: {
+      'cache':true,
       external: [/^socket:.*/],
+      output:{
+        'format': 'esm'
+      }
       // 'perf':true
     },
   },

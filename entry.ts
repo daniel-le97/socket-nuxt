@@ -1,4 +1,3 @@
-
 import "#internal/nitro/virtual/polyfills";
 // @ts-ignore
 import { isPublicAssetURL } from "#internal/nitro/virtual/public-assets";
@@ -15,7 +14,8 @@ const handler = toWebHandler(nitroApp.h3App);
 export default {
   async fetch(request: Request, env = {}, ctx: any) {
     let url = new URL(request.url);
-    
+    console.log({ url: url.pathname, env, ctx });
+
     if (isPublicAssetURL(url.pathname) || url.pathname.includes("/server/")) {
       return;
     }
@@ -28,7 +28,7 @@ export default {
     }
 
     if (!res) {
-      res = await handler(request);
+      res = await handler(request, ctx);
       // if u want to make the handler manually
       // res = await handleEvent(url, request);
     }
