@@ -4,6 +4,8 @@ Learn More:
 - [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction)
 - [Socket runtime documentation](https://socketsupply.co/)
 
+all nuxt configuration to get this working can be found in /modules/gui
+
 ## Setup
 
 Make sure to install the dependencies:
