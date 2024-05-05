@@ -8,6 +8,7 @@ import { defu } from "defu";
 import type { Plugin } from "rollup";
 import { type NitroConfig } from "nitropack";
 import { existsSync, promises as fsp } from "node:fs";
+
 function fixGlobals(): Plugin {
   return {
     name: "socket-fix-globals",
