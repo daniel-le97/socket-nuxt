@@ -9,7 +9,7 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "start": "ssc build -r",
-    "debug": "SOCKET_RUNTIME_SERVICE_WORKER_DEBUG=1 ssc build -r -w"
+    "debug": "SOCKET_RUNTIME_SERVICE_WORKER_DEBUG=1 ssc build -r"
   },
   "dependencies": {
     "@socketsupply/socket": "^0.5.4",

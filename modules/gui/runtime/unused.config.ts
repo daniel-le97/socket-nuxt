@@ -112,10 +112,4 @@ function getAliases() {
     "worker_threads", // Supports multithreaded worker tasks
     "zlib", // Provides compression/decompression functionalities
   ];
-
-  for (const module of nodeModules) {
-    alias[module] = `socket:${module}`;
-    alias[`node:${module}`] = `socket:${module}`;
-  }
-  return alias;
 }

@@ -6,7 +6,7 @@ import {
 } from "nuxt/kit";
 import { defu } from "defu";
 import type { Plugin } from "rollup";
-
+import { type NitroConfig } from "nitropack";
 import { existsSync, promises as fsp } from "node:fs";
 function fixGlobals(): Plugin {
   return {
@@ -45,61 +45,65 @@ export default defineNuxtModule({
 
     const { resolve } = createResolver(import.meta.url);
     nuxt.options.ssr = false;
-    nuxt.options.app.baseURL = "/nitro/";
-    nuxt.options.app.cdnURL = "/nitro/";
+    //setting these in a module do not work
+    // nuxt.options.app.baseURL = "/nitro/";
+    // nuxt.options.app.cdnURL = "/nitro/";
     nuxt.options.vite.build = defu(nuxt.options.vite.build, {
       reportCompressedSize: false,
       rollupOptions: {
         external: [/^socket:.*/],
       },
     });
-    nuxt.options.nitro = defu(nuxt.options.nitro, {
+    nuxt.options.nitro = defu<NitroConfig, NitroConfig[]>(nuxt.options.nitro, {
       entry: resolve("./runtime/entry.ts"),
+      noExternals: true,
+      node: false,
+      inlineDynamicImports: true,
+      rollupConfig: {
+        external: [/^socket:.*/],
+        output: {
+          format: "esm",
+        },
+      },
+      hooks: {
+        "rollup:before": (nitro, config) => {
+          const plugins = config.plugins as Plugin[];
+          const found = plugins.findIndex((p) => p.name === "import-meta") + 1;
+          plugins.splice(found, 0, fixGlobals());
+          config.plugins = plugins;
+        },
+        compiled: async (nitro) => {
+          const indexHtml = resolve(
+            nitro.options.output.publicDir,
+            "index.html"
+          );
+          if (!existsSync(indexHtml)) {
+            const html = await fsp.readFile(
+              resolve("./runtime/index.html"),
+              "utf-8"
+            );
+            // write the index.html file from the entry.html template
+            await fsp.writeFile(indexHtml, html, "utf8");
+          }
+        },
+      },
+      // preset: 'service-worker',
       output: {
         serverDir: "{{ output.dir }}/public/server",
       },
+      plugins: [resolve("./runtime/server/plugins/preload.ts")],
+      serveStatic: false,
+      commands: {
+        preview: "ssc build -r",
+        deploy: "ssc build --prod",
+      },
+      unenv: {
+        alias: {
+          fs: "socket:fs",
+          "node:fs": "socket:fs",
+        },
+      },
     });
-    nuxt.options.nitro.baseURL = "/nitro/";
-    nuxt.options.nitro.noExternals = true;
-    nuxt.options.nitro.node = false;
-    nuxt.options.nitro.inlineDynamicImports = true;
-    nuxt.options.nitro.rollupConfig = {
-      external: [/^socket:.*/],
-    };
-    nuxt.options.nitro.plugins = [
-      resolve("./runtime/server/plugins/preload.ts"),
-    ];
-    nuxt.options.nitro.commands = {
-      'preview': 'ssc build -r',
-      "deploy": 'ssc build --prod'
-    }
-    nuxt.options.nitro.hooks = {
-      "rollup:before": (nitro, config) => {
-        const plugins = config.plugins as Plugin[];
-        const found = plugins.findIndex((p) => p.name === "import-meta") + 1;
-        plugins.splice(found, 0, fixGlobals());
-        config.plugins = plugins;
-      },
-
-      async compiled(nitro) {
-        const indexHtml = resolve(nitro.options.output.publicDir, "index.html");
-        if (!existsSync(indexHtml)) {
-          const html = await fsp.readFile(
-            resolve("./runtime/index.html"),
-            "utf-8"
-          );
-          // write the index.html file from the entry.html template
-          await fsp.writeFile(indexHtml, html, "utf8");
-        }
-      },
-    };
-
-    // nuxt.options.vite.build.rollupOptions.external
-    // console.log(
-    //   "nuxt.options.vite.build.rollupOptions.external",
-    //   nuxt.options.vite.build.rollupOptions.external
-    // );
-
     console.log("socket runtime setup done");
   },
 });

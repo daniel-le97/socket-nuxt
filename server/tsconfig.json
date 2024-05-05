@@ -1,7 +1,8 @@
 {
   "extends": "../.nuxt/tsconfig.server.json",
   "compilerOptions": {
-    "types": ["../socket/index.d.ts"]
+    "types": ["../socket/index.d.ts"],
+    "lib": ["ESNext"],
   },
-  "exclude": ["../build", "../dist", "../socket"]
+  "exclude": ["../build", "../dist", "../socket", "../socket/application.js"]
 }
